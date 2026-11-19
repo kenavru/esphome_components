@@ -53,6 +53,10 @@ CONF_SET38 = "set38"  # Set Bivalent AP Stop Temp
 CONF_SET46 = "set46"  # Set Heater On Outdoor Temp
 CONF_SET47 = "set47"  # Set Heat To Cool Temp
 CONF_SET48 = "set48"  # Set Cool To Heat Temp
+CONF_SET_STERILIZATION_TEMP = "set_sterilization_temp"  # Set Sterilization Temp
+CONF_SET_STERILIZATION_MAX_TIME = "set_sterilization_max_time"  # Set Sterilization Max Time
+CONF_SET_ROOM_OPERATION_MAX_TIME = "set_room_operation_max_time"  # Set Room Operation Max Time
+CONF_SET_DHW_HEATUP_MAX_TIME = "set_dhw_heatup_max_time"  # Set DHW Heatup Max Time
 
 TYPES = [
     CONF_SET5,
@@ -91,6 +95,10 @@ TYPES = [
     CONF_SET46,
     CONF_SET47,
     CONF_SET48,
+    CONF_SET_STERILIZATION_TEMP,
+    CONF_SET_STERILIZATION_MAX_TIME,
+    CONF_SET_ROOM_OPERATION_MAX_TIME,
+    CONF_SET_DHW_HEATUP_MAX_TIME,
 ]
 
 
@@ -99,7 +107,7 @@ def number_options(min_val, max_val, step) -> cv.Schema:
         {
             cv.Optional(CONF_MIN_VALUE, default=min_val): cv.float_,
             cv.Optional(CONF_MAX_VALUE, default=max_val): cv.float_,
-            cv.Optional(CONF_STEP, default=step): cv.float_range(min=1.0, max=10.0),
+            cv.Optional(CONF_STEP, default=step): cv.float_range(min=1.0, max=100.0),
             cv.Optional(CONF_MODE, default="BOX"): cv.enum(
                 number.NUMBER_MODES, upper=True
             ),
@@ -239,11 +247,11 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_SET22): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_KELVIN,
-        ).extend(number_options(1.0, 15.0, 1.0)),
+        ).extend(number_options(-20.0, 20.0, 1.0)),
         cv.Optional(CONF_SET23): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_KELVIN,
-        ).extend(number_options(1.0, 15.0, 1.0)),
+        ).extend(number_options(-20.0, 20.0, 1.0)),
         cv.Optional(CONF_SET27): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_KELVIN,
@@ -276,6 +284,22 @@ CONFIG_SCHEMA = cv.Schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_CELSIUS,
         ).extend(number_options(5.0, 14.0, 1.0)),
+        cv.Optional(CONF_SET_STERILIZATION_TEMP): number.number_schema(
+            PanasonicHeatpumpNumber,
+            unit_of_measurement=UNIT_CELSIUS,
+        ).extend(number_options(55.0, 75.0, 1.0)),
+        cv.Optional(CONF_SET_STERILIZATION_MAX_TIME): number.number_schema(
+            PanasonicHeatpumpNumber,
+            unit_of_measurement=UNIT_MINUTE,
+        ).extend(number_options(5.0, 60.0, 5.0)),
+        cv.Optional(CONF_SET_ROOM_OPERATION_MAX_TIME): number.number_schema(
+            PanasonicHeatpumpNumber,
+            unit_of_measurement=UNIT_MINUTE,
+        ).extend(number_options(30.0, 7620.0, 30.0)),
+        cv.Optional(CONF_SET_DHW_HEATUP_MAX_TIME): number.number_schema(
+            PanasonicHeatpumpNumber,
+            unit_of_measurement=UNIT_MINUTE,
+        ).extend(number_options(1.0, 254.0, 1.0)),
     }
 ).extend(cv.COMPONENT_SCHEMA)
 

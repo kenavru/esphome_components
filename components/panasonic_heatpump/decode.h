@@ -38,6 +38,9 @@ class PanasonicDecode {
   static int getHighNibbleMinus1(uint8_t input);
   static int getLowNibbleMinus1(uint8_t input);
   static int getWordMinus1(const std::vector<uint8_t>& data, uint8_t index);
+  static float getNibbleOffset(uint8_t input, bool high);
+  static float getByteMinus1Div10(uint8_t input);
+  static int getByteMinus1Times5(uint8_t input);
 
   static int getOperationMode(uint8_t input);
   static int getModel(const std::vector<uint8_t>& data, uint8_t index);
@@ -80,6 +83,10 @@ class PanasonicDecode {
   static const constexpr char* const DHWCapacityMode[] = {"2", "Standard", "Variable"};
   static const constexpr char* const DHWHeaterType[] = {"2", "Internal", "External"};
   static const constexpr char* const HeatCoolSwitch[] = {"2", "Heat", "Cool"};
+  static const constexpr char* const BivalentOperatingMode[] = {"3", "Auto", "SG Ready", "Intelligent"};
+  static const constexpr char* const ExtraPumpUse[] = {"3", "Not used", "Heating", "DHW"};
+  static const constexpr char* const ExtraPumpMode[] = {"2", "Comfort", "Efficiency"};
+  static const constexpr char* const HeatPumpType[] = {"2", "Standard", "T-CAP"};
   static const constexpr char* const ModelNames[] = {
       "73",                                  // string representation of number of known models (last model number + 1)
       "WH-MDC05H3E5",                        // 0

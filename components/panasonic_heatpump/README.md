@@ -368,6 +368,48 @@ sensor:
       name: "DHW Heatup Max Time"
     top169:
       name: "Heat Request Temp With Buffer"
+    top171:
+      name: "Heating On Outdoor Temp"
+    top172:
+      name: "Heating On Delay"
+    top173:
+      name: "DHW Booster Delay"
+    top174:
+      name: "Efficiency Stage 1 Time"
+    top175:
+      name: "Efficiency Stage 2 Time"
+    top176:
+      name: "Efficiency Stage 3 Time"
+    top177:
+      name: "Sensor Offset Remote Th1"
+    top178:
+      name: "Sensor Offset Outdoor"
+    top184:
+      name: "SG Ready 1 DHW Power"
+    top185:
+      name: "SG Ready 1 Heat Power"
+    top186:
+      name: "SG Ready 1 Cool Power"
+    top187:
+      name: "SG Ready 2 DHW Power"
+    top188:
+      name: "SG Ready 2 Heat Power"
+    top189:
+      name: "SG Ready 2 Cool Power"
+    top190:
+      name: "SG Ready Stop Power"
+    top191:
+      name: "SG Ready 1 Cool Capacity"
+    top192:
+      name: "SG Ready 2 Cool Capacity"
+    top193:
+      name: "Sensor Offset Return"
+    top195:
+      name: "Sensor Offset DHW Tank"
+    top196:
+      name: "Sensor Offset Flow"
+    top197:
+      name: "Heat Pump Capacity"
 
     xtop0:
       name: "Heat Power Consumption Extra"
@@ -463,6 +505,14 @@ binary_sensor:
       name: "Backup Heater Enable"
     top168:
       name: "Cooling Enable"
+    top170:
+      name: "Static Pressure"
+    top179:
+      name: "Anti Stick Mode"
+    top181:
+      name: "Bivalent External Pump"
+    top194:
+      name: "Defrost Signal"
 ```
 
 ### Text Sensors
@@ -529,6 +579,14 @@ text_sensor:
       name: "DHW Heater Type"
     top162:
       name: "Heat Cool Switch State"
+    top180:
+      name: "Bivalent Operating Mode"
+    top182:
+      name: "Extra Pump Use"
+    top183:
+      name: "Extra Pump Mode"
+    top198:
+      name: "Heat Pump Type"
 ```
 
 ### Numbers
@@ -613,6 +671,14 @@ number:
       name: "Set Heat To Cool Temp"
     set48:
       name: "Set Cool To Heat Temp"
+    set_sterilization_temp:
+      name: "Set Sterilization Temp"
+    set_sterilization_max_time:
+      name: "Set Sterilization Max Time"
+    set_room_operation_max_time:
+      name: "Set Room Operation Max Time"
+    set_dhw_heatup_max_time:
+      name: "Set DHW Heatup Max Time"
 ```
 
 ### Switches
@@ -651,6 +717,10 @@ switch:
       name: "Set Bivalent Control"
     error_reset:
       name: "Error Reset (Restart Heatpump)"
+    force_heater:
+      name: "Force Heater"
+    quiet_mode_schedule:
+      name: "Quiet Mode Schedule"
 ```
 
 ### Selects
@@ -774,6 +844,15 @@ text_sensor:
       // if state is unkown do not update
       return {};
 ```
+
+## Model-specific notes (K / L series)
+
+- **Heater deltas are signed.** On K series the installer menu items *Water temperature for heater ON* and *Water temperature for heater OFF* are negative offsets from the water setpoint (defaults around -4 °C and -2 °C). `set22` / `set23` therefore accept negative values (-20 … 20 K). A pump reporting -10 is valid.
+- **`set21` (heater delay) is not J-series only.** The protocol documentation marks TOP96-TOP98 as J/K/L; the K series exposes the same delay/delta fields. Older HeishaMon topic documentation that says "only J-series" for SET21-SET23 is outdated.
+- **Heater enable has two layers.** `set44` / `set45` (`top58` / `top59`) only allow or block the heater per mode. `top167 Backup Heater Enable` is the custom-menu master switch and is **read-only** over CN-CNT. To turn the backup heater off completely, use the controller's *Installer / custom menu → Back-up heater*.
+- **Disabled does not mean never.** The K/L indoor unit still energises the backup heater for defrost, anti-freeze and indoor heat-exchanger protection. Panasonic documents this explicitly ("Backup heater is automatically turned ON when it is disabled … protection control of the indoor unit heat exchanger"). Do not cut the heater supply to prevent it: low water temperature during deice can then raise a malfunction.
+- **Model-specific TOPs.** `top115` (water pressure), `top117` (economizer outlet), `top141` (quiet mode priority), `top143` (DHW sensor selection, All-In-One only), `top151` (DHW defrost), `top162` (heat/cool switch), `top167`/`top168` (custom menu) and `top197`/`top198` (rated capacity / Standard vs T-CAP) are K/L series values. `top145` (DHW capacity mode) is J-series only, and `top126` (second inlet) is L-series only; they may read as undefined on other models.
+- **Force Heater** (`force_heater`, same as `SET47` / the Heater button on the remote) bypasses the normal outdoor-temperature and mode gating and is the first thing to check when the internal heater runs while everything appears disabled. Its state is reported by `top68 Force Heater State`.
 
 ## Known Issues
 

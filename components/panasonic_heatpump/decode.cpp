@@ -27,6 +27,10 @@ constexpr const char* const PanasonicDecode::QuietModePriority[];
 constexpr const char* const PanasonicDecode::DHWCapacityMode[];
 constexpr const char* const PanasonicDecode::DHWHeaterType[];
 constexpr const char* const PanasonicDecode::HeatCoolSwitch[];
+constexpr const char* const PanasonicDecode::BivalentOperatingMode[];
+constexpr const char* const PanasonicDecode::ExtraPumpUse[];
+constexpr const char* const PanasonicDecode::ExtraPumpMode[];
+constexpr const char* const PanasonicDecode::HeatPumpType[];
 constexpr const char* const PanasonicDecode::ModelNames[];
 static constexpr float KGF_CM2_TO_BAR = 0.980665f;
 
@@ -177,6 +181,19 @@ int PanasonicDecode::getByteMinus1Times200(uint8_t input) {
 
 float PanasonicDecode::getKgfCm2ToBar(float input) {
   return input * KGF_CM2_TO_BAR;
+}
+
+float PanasonicDecode::getNibbleOffset(uint8_t input, bool high) {
+  int nibble = high ? (input >> 4) : (input & 0b1111);
+  return ((float)nibble - 8.0f) * 0.5f;
+}
+
+float PanasonicDecode::getByteMinus1Div10(uint8_t input) {
+  return ((float)input - 1.0f) / 10.0f;
+}
+
+int PanasonicDecode::getByteMinus1Times5(uint8_t input) {
+  return ((int)input - 1) * 5;
 }
 
 int PanasonicDecode::getHighNibbleMinus1(uint8_t input) {

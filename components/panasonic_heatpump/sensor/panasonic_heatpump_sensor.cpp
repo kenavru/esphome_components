@@ -549,6 +549,111 @@ void PanasonicHeatpumpSensor::publish_new_state(const std::vector<uint8_t>& data
     if (this->has_state() && this->get_state() == new_state)
       return;
     break;
+  case SensorIds::CONF_TOP171:
+    new_state = PanasonicDecode::getByteMinus128(data[108]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP172:
+    new_state = PanasonicDecode::getByteMinus1Times30(data[109]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP173:
+    new_state = PanasonicDecode::getByteMinus1(data[60]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP174:
+    new_state = PanasonicDecode::getByteMinus1Times5(data[33] & 0b1111);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP175:
+    new_state = PanasonicDecode::getByteMinus1Times5(data[33] >> 4);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP176:
+    new_state = PanasonicDecode::getByteMinus1Times5(data[34] & 0b1111);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP177:
+    new_state = PanasonicDecode::getNibbleOffset(data[35], true);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP178:
+    new_state = PanasonicDecode::getNibbleOffset(data[35], false);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP184:
+    new_state = PanasonicDecode::getByteMinus1Div10(data[51]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP185:
+    new_state = PanasonicDecode::getByteMinus1Div10(data[52]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP186:
+    new_state = PanasonicDecode::getByteMinus1Div10(data[53]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP187:
+    new_state = PanasonicDecode::getByteMinus1Div10(data[54]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP188:
+    new_state = PanasonicDecode::getByteMinus1Div10(data[55]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP189:
+    new_state = PanasonicDecode::getByteMinus1Div10(data[56]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP190:
+    new_state = PanasonicDecode::getByteMinus1Div10(data[57]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP191:
+    new_state = PanasonicDecode::getByteMinus128(data[102]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP192:
+    new_state = PanasonicDecode::getByteMinus128(data[103]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP193:
+    new_state = PanasonicDecode::getNibbleOffset(data[36], true);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP195:
+    new_state = PanasonicDecode::getNibbleOffset(data[36], false);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP196:
+    new_state = PanasonicDecode::getNibbleOffset(data[37], false);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
+  case SensorIds::CONF_TOP197:
+    new_state = PanasonicDecode::getByteMinus1(data[191]);
+    if (this->has_state() && this->get_state() == new_state)
+      return;
+    break;
 
   case SensorIds::CONF_XTOP0:
     new_state = PanasonicDecode::getWordMinus1(data, 14);

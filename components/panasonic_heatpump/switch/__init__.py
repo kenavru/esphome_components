@@ -21,6 +21,8 @@ CONF_SET32 = "set32"  # Set External Compressor Control
 CONF_SET33 = "set33"  # Set External Heat Cool Control
 CONF_SET34 = "set34"  # Set Bivalent Control
 CONF_ERROR = "error_reset"  # Error Reset (Restart Heatpump)
+CONF_FORCE_HEATER = "force_heater"  # Force Heater (emergency heating)
+CONF_QUIET_MODE_SCHEDULE = "quiet_mode_schedule"  # Quiet Mode Schedule
 
 TYPES = [
     CONF_SET1,
@@ -37,6 +39,8 @@ TYPES = [
     CONF_SET33,
     CONF_SET34,
     CONF_ERROR,
+    CONF_FORCE_HEATER,
+    CONF_QUIET_MODE_SCHEDULE,
 ]
 
 PanasonicHeatpumpSwitch = panasonic_heatpump_ns.class_(
@@ -88,6 +92,12 @@ CONFIG_SCHEMA = cv.Schema(
             PanasonicHeatpumpSwitch,
         ),
         cv.Optional(CONF_ERROR): switch.switch_schema(
+            PanasonicHeatpumpSwitch,
+        ),
+        cv.Optional(CONF_FORCE_HEATER): switch.switch_schema(
+            PanasonicHeatpumpSwitch,
+        ),
+        cv.Optional(CONF_QUIET_MODE_SCHEDULE): switch.switch_schema(
             PanasonicHeatpumpSwitch,
         ),
     }

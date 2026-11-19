@@ -7,6 +7,7 @@ from esphome.const import (
     UNIT_HERTZ,
     UNIT_HOUR,
     UNIT_KELVIN,
+    UNIT_KILOWATT,
     UNIT_MINUTE,
     UNIT_WATT,
     UNIT_EMPTY,
@@ -144,6 +145,27 @@ CONF_TOP157 = "top157"  # SG Ready 2 DHW Capacity
 CONF_TOP158 = "top158"  # Room Operation Max Time
 CONF_TOP159 = "top159"  # DHW Heatup Max Time
 CONF_TOP169 = "top169"  # Heat Request Temp With Buffer
+CONF_TOP171 = "top171"  # Heating On Outdoor Temp
+CONF_TOP172 = "top172"  # Heating On Delay
+CONF_TOP173 = "top173"  # DHW Booster Delay
+CONF_TOP174 = "top174"  # Efficiency Stage 1 Time
+CONF_TOP175 = "top175"  # Efficiency Stage 2 Time
+CONF_TOP176 = "top176"  # Efficiency Stage 3 Time
+CONF_TOP177 = "top177"  # Sensor Offset Remote Th1
+CONF_TOP178 = "top178"  # Sensor Offset Outdoor
+CONF_TOP184 = "top184"  # SG Ready 1 DHW Power
+CONF_TOP185 = "top185"  # SG Ready 1 Heat Power
+CONF_TOP186 = "top186"  # SG Ready 1 Cool Power
+CONF_TOP187 = "top187"  # SG Ready 2 DHW Power
+CONF_TOP188 = "top188"  # SG Ready 2 Heat Power
+CONF_TOP189 = "top189"  # SG Ready 2 Cool Power
+CONF_TOP190 = "top190"  # SG Ready Stop Power
+CONF_TOP191 = "top191"  # SG Ready 1 Cool Capacity
+CONF_TOP192 = "top192"  # SG Ready 2 Cool Capacity
+CONF_TOP193 = "top193"  # Sensor Offset Return
+CONF_TOP195 = "top195"  # Sensor Offset DHW Tank
+CONF_TOP196 = "top196"  # Sensor Offset Flow
+CONF_TOP197 = "top197"  # Heat Pump Capacity
 CONF_XTOP0 = "xtop0"  # Heat Power Consumption Extra
 CONF_XTOP1 = "xtop1"  # Cool Power Consumption Extra
 CONF_XTOP2 = "xtop2"  # DHW Power Consumption Extra
@@ -259,6 +281,27 @@ TYPES = [
     CONF_TOP158,
     CONF_TOP159,
     CONF_TOP169,
+    CONF_TOP171,
+    CONF_TOP172,
+    CONF_TOP173,
+    CONF_TOP174,
+    CONF_TOP175,
+    CONF_TOP176,
+    CONF_TOP177,
+    CONF_TOP178,
+    CONF_TOP184,
+    CONF_TOP185,
+    CONF_TOP186,
+    CONF_TOP187,
+    CONF_TOP188,
+    CONF_TOP189,
+    CONF_TOP190,
+    CONF_TOP191,
+    CONF_TOP192,
+    CONF_TOP193,
+    CONF_TOP195,
+    CONF_TOP196,
+    CONF_TOP197,
     CONF_XTOP0,
     CONF_XTOP1,
     CONF_XTOP2,
@@ -1012,6 +1055,148 @@ CONFIG_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_TEMPERATURE,
             state_class=STATE_CLASS_MEASUREMENT,
             unit_of_measurement=UNIT_CELSIUS,
+        ),
+        cv.Optional(CONF_TOP171): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=0,
+            device_class=DEVICE_CLASS_TEMPERATURE,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_CELSIUS,
+        ),
+        cv.Optional(CONF_TOP172): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=0,
+            device_class=DEVICE_CLASS_DURATION,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_MINUTE,
+        ),
+        cv.Optional(CONF_TOP173): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=0,
+            device_class=DEVICE_CLASS_DURATION,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_MINUTE,
+        ),
+        cv.Optional(CONF_TOP174): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=0,
+            device_class=DEVICE_CLASS_DURATION,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_MINUTE,
+        ),
+        cv.Optional(CONF_TOP175): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=0,
+            device_class=DEVICE_CLASS_DURATION,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_MINUTE,
+        ),
+        cv.Optional(CONF_TOP176): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=0,
+            device_class=DEVICE_CLASS_DURATION,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_MINUTE,
+        ),
+        cv.Optional(CONF_TOP177): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KELVIN,
+        ),
+        cv.Optional(CONF_TOP178): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KELVIN,
+        ),
+        cv.Optional(CONF_TOP184): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_POWER,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KILOWATT,
+        ),
+        cv.Optional(CONF_TOP185): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_POWER,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KILOWATT,
+        ),
+        cv.Optional(CONF_TOP186): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_POWER,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KILOWATT,
+        ),
+        cv.Optional(CONF_TOP187): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_POWER,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KILOWATT,
+        ),
+        cv.Optional(CONF_TOP188): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_POWER,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KILOWATT,
+        ),
+        cv.Optional(CONF_TOP189): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_POWER,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KILOWATT,
+        ),
+        cv.Optional(CONF_TOP190): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_POWER,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KILOWATT,
+        ),
+        cv.Optional(CONF_TOP191): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_TEMPERATURE,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_CELSIUS,
+        ),
+        cv.Optional(CONF_TOP192): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_TEMPERATURE,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_CELSIUS,
+        ),
+        cv.Optional(CONF_TOP193): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KELVIN,
+        ),
+        cv.Optional(CONF_TOP195): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KELVIN,
+        ),
+        cv.Optional(CONF_TOP196): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=1,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KELVIN,
+        ),
+        cv.Optional(CONF_TOP197): sensor.sensor_schema(
+            PanasonicHeatpumpSensor,
+            accuracy_decimals=0,
+            device_class=DEVICE_CLASS_POWER,
+            state_class=STATE_CLASS_MEASUREMENT,
+            unit_of_measurement=UNIT_KILOWATT,
         ),
         cv.Optional(CONF_XTOP0): sensor.sensor_schema(
             PanasonicHeatpumpSensor,

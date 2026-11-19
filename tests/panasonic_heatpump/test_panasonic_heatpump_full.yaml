@@ -264,6 +264,48 @@ sensor:
       name: "DHW Heatup Max Time"
     top169:
       name: "Heat Request Temp With Buffer"
+    top171:
+      name: "Heating On Outdoor Temp"
+    top172:
+      name: "Heating On Delay"
+    top173:
+      name: "DHW Booster Delay"
+    top174:
+      name: "Efficiency Stage 1 Time"
+    top175:
+      name: "Efficiency Stage 2 Time"
+    top176:
+      name: "Efficiency Stage 3 Time"
+    top177:
+      name: "Sensor Offset Remote Th1"
+    top178:
+      name: "Sensor Offset Outdoor"
+    top184:
+      name: "SG Ready 1 DHW Power"
+    top185:
+      name: "SG Ready 1 Heat Power"
+    top186:
+      name: "SG Ready 1 Cool Power"
+    top187:
+      name: "SG Ready 2 DHW Power"
+    top188:
+      name: "SG Ready 2 Heat Power"
+    top189:
+      name: "SG Ready 2 Cool Power"
+    top190:
+      name: "SG Ready Stop Power"
+    top191:
+      name: "SG Ready 1 Cool Capacity"
+    top192:
+      name: "SG Ready 2 Cool Capacity"
+    top193:
+      name: "Sensor Offset Return"
+    top195:
+      name: "Sensor Offset DHW Tank"
+    top196:
+      name: "Sensor Offset Flow"
+    top197:
+      name: "Heat Pump Capacity"
     xtop0:
       name: "Heat Power Consumption Extra"
     xtop1:
@@ -350,6 +392,14 @@ binary_sensor:
       name: "Backup Heater Enable"
     top168:
       name: "Cooling Enable"
+    top170:
+      name: "Static Pressure"
+    top179:
+      name: "Anti Stick Mode"
+    top181:
+      name: "Bivalent External Pump"
+    top194:
+      name: "Defrost Signal"
 
 # Test all text sensors
 text_sensor:
@@ -408,6 +458,14 @@ text_sensor:
       name: "DHW Heater Type"
     top162:
       name: "Heat Cool Switch State"
+    top180:
+      name: "Bivalent Operating Mode"
+    top182:
+      name: "Extra Pump Use"
+    top183:
+      name: "Extra Pump Mode"
+    top198:
+      name: "Heat Pump Type"
 
 # Test all number controls
 number:
@@ -478,6 +536,14 @@ number:
       name: "Set Bivalent AP Start Temp"
     set38:
       name: "Set Bivalent AP Stop Temp"
+    set_sterilization_temp:
+      name: "Set Sterilization Temp"
+    set_sterilization_max_time:
+      name: "Set Sterilization Max Time"
+    set_room_operation_max_time:
+      name: "Set Room Operation Max Time"
+    set_dhw_heatup_max_time:
+      name: "Set DHW Heatup Max Time"
 
 # Test all select controls
 select:
@@ -537,6 +603,10 @@ switch:
       name: "Set Bivalent Control"
     error_reset:
       name: "Error Reset (Restart Heatpump)"
+    force_heater:
+      name: "Force Heater"
+    quiet_mode_schedule:
+      name: "Quiet Mode Schedule"
 
 # Test climate platform
 climate:

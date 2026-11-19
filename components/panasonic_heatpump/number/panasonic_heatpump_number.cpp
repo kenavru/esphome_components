@@ -120,11 +120,23 @@ void PanasonicHeatpumpNumber::control(float value) {
   case NumberIds::CONF_SET48:
     this->parent_->set_command_byte(PanasonicCommand::setPlus128(value_int), 96);
     break;
+  case NumberIds::CONF_SET_STERILIZATION_TEMP:
+    this->parent_->set_command_byte(PanasonicCommand::setPlus128(value_int), 100);
+    break;
+  case NumberIds::CONF_SET_STERILIZATION_MAX_TIME:
+    this->parent_->set_command_byte(PanasonicCommand::setPlus1(value_int), 101);
+    break;
+  case NumberIds::CONF_SET_ROOM_OPERATION_MAX_TIME:
+    this->parent_->set_command_byte(PanasonicCommand::setPlus1(value_int / 30), 97);
+    break;
+  case NumberIds::CONF_SET_DHW_HEATUP_MAX_TIME:
+    this->parent_->set_command_byte(PanasonicCommand::setPlus1(value_int), 98);
+    break;
   default:
     return;
   };
 
-  this->publish_state(state);
+  this->publish_state(value);
   this->keep_state_ = KEEP_STATE;
 }
 
@@ -315,6 +327,26 @@ void PanasonicHeatpumpNumber::publish_new_state(const std::vector<uint8_t>& data
     break;
   case NumberIds::CONF_SET48:
     new_state = PanasonicDecode::getByteMinus128(data[96]);
+    if (this->has_state() && this->state == new_state)
+      return;
+    break;
+  case NumberIds::CONF_SET_STERILIZATION_TEMP:
+    new_state = PanasonicDecode::getByteMinus128(data[100]);
+    if (this->has_state() && this->state == new_state)
+      return;
+    break;
+  case NumberIds::CONF_SET_STERILIZATION_MAX_TIME:
+    new_state = PanasonicDecode::getByteMinus1(data[101]);
+    if (this->has_state() && this->state == new_state)
+      return;
+    break;
+  case NumberIds::CONF_SET_ROOM_OPERATION_MAX_TIME:
+    new_state = PanasonicDecode::getByteMinus1Times30(data[97]);
+    if (this->has_state() && this->state == new_state)
+      return;
+    break;
+  case NumberIds::CONF_SET_DHW_HEATUP_MAX_TIME:
+    new_state = PanasonicDecode::getByteMinus1(data[98]);
     if (this->has_state() && this->state == new_state)
       return;
     break;

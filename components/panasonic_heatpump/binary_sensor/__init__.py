@@ -46,6 +46,10 @@ CONF_TOP165 = "top165"  # Z2 Active
 CONF_TOP166 = "top166"  # Z1 Active
 CONF_TOP167 = "top167"  # Backup Heater Enable
 CONF_TOP168 = "top168"  # Cooling Enable
+CONF_TOP170 = "top170"  # Static Pressure
+CONF_TOP179 = "top179"  # Anti Stick Mode
+CONF_TOP181 = "top181"  # Bivalent External Pump
+CONF_TOP194 = "top194"  # Defrost Signal
 
 TYPES = [
     CONF_UART_CLIENT_TIMED_OUT,
@@ -84,6 +88,10 @@ TYPES = [
     CONF_TOP166,
     CONF_TOP167,
     CONF_TOP168,
+    CONF_TOP170,
+    CONF_TOP179,
+    CONF_TOP181,
+    CONF_TOP194,
 ]
 
 PanasonicHeatpumpBinarySensor = panasonic_heatpump_ns.class_(
@@ -212,6 +220,19 @@ CONFIG_SCHEMA = cv.Schema(
         ),
         cv.Optional(CONF_TOP168): binary_sensor.binary_sensor_schema(
             PanasonicHeatpumpBinarySensor,
+        ),
+        cv.Optional(CONF_TOP170): binary_sensor.binary_sensor_schema(
+            PanasonicHeatpumpBinarySensor,
+        ),
+        cv.Optional(CONF_TOP179): binary_sensor.binary_sensor_schema(
+            PanasonicHeatpumpBinarySensor,
+        ),
+        cv.Optional(CONF_TOP181): binary_sensor.binary_sensor_schema(
+            PanasonicHeatpumpBinarySensor,
+        ),
+        cv.Optional(CONF_TOP194): binary_sensor.binary_sensor_schema(
+            PanasonicHeatpumpBinarySensor,
+            device_class=DEVICE_CLASS_RUNNING,
         ),
     }
 ).extend(cv.COMPONENT_SCHEMA)

@@ -55,6 +55,17 @@ void PanasonicHeatpumpSwitch::write_state(bool state) {
   case SwitchIds::CONF_ERROR:
     this->parent_->set_command_byte(value, 8);
     break;
+  case SwitchIds::CONF_FORCE_HEATER:
+    this->parent_->set_command_byte(PanasonicCommand::setPlus1Multiply4(value), 5);
+    break;
+  case SwitchIds::CONF_QUIET_MODE_SCHEDULE: {
+    int current = this->parent_->get_response_byte(7);
+    if (current < 0)
+      return;
+    uint8_t quiet = (static_cast<uint8_t>(current) & 0b00111111) | (state ? 0x80 : 0x40);
+    this->parent_->set_command_byte(quiet, 7);
+    break;
+  }
   default:
     return;
   };
@@ -135,6 +146,16 @@ void PanasonicHeatpumpSwitch::publish_new_state(const std::vector<uint8_t>& data
     break;
   case SwitchIds::CONF_ERROR:
     new_state = PanasonicDecode::getBinaryState(data[8]);
+    if (this->state == new_state)
+      return;
+    break;
+  case SwitchIds::CONF_FORCE_HEATER:
+    new_state = PanasonicDecode::getBit5and6(data[5]) == 1;
+    if (this->state == new_state)
+      return;
+    break;
+  case SwitchIds::CONF_QUIET_MODE_SCHEDULE:
+    new_state = PanasonicDecode::getBit1and2(data[7]) == 1;
     if (this->state == new_state)
       return;
     break;

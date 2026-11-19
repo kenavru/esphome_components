@@ -44,6 +44,10 @@ enum NumberIds : uint8_t {
   CONF_SET46,
   CONF_SET47,
   CONF_SET48,
+  CONF_SET_STERILIZATION_TEMP,
+  CONF_SET_STERILIZATION_MAX_TIME,
+  CONF_SET_ROOM_OPERATION_MAX_TIME,
+  CONF_SET_DHW_HEATUP_MAX_TIME,
 };
 
 class PanasonicHeatpumpNumber : public number::Number,
