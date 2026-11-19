@@ -854,6 +854,14 @@ text_sensor:
 - **Model-specific TOPs.** `top115` (water pressure), `top117` (economizer outlet), `top141` (quiet mode priority), `top143` (DHW sensor selection, All-In-One only), `top151` (DHW defrost), `top162` (heat/cool switch), `top167`/`top168` (custom menu) and `top197`/`top198` (rated capacity / Standard vs T-CAP) are K/L series values. `top145` (DHW capacity mode) is J-series only, and `top126` (second inlet) is L-series only; they may read as undefined on other models.
 - **Force Heater** (`force_heater`, same as `SET47` / the Heater button on the remote) bypasses the normal outdoor-temperature and mode gating and is the first thing to check when the internal heater runs while everything appears disabled. Its state is reported by `top68 Force Heater State`.
 
+### Write safety
+
+- Read-only TOP entities cannot change the heat pump.
+- Every writable entity only sends a command when you change it (or an automation calls it); nothing is written during boot or polling.
+- The new controls use the same offsets, scaling, and value ranges as HeishaMon's documented commands (`SET47`, `SET49`, `SET50`, `SET53`, `SET54`, `SET55`).
+- The new `force_heater` and `quiet_mode_schedule` switches read the current byte from the last response and preserve the neighbouring fields before writing. `force_heater` is equivalent to pressing the remote's Heater button and intentionally runs the backup heater, so leave it off unless you are testing.
+- Heater start/stop delta (`set22`/`set23`) and bivalent advanced start/stop (`set37`/`set38`) only change configuration values; they do not command the heater directly.
+
 ## Known Issues
 
 When the ESP controller is connected initially to the heatpump (and the heatpump is powered),  

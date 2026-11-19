@@ -55,9 +55,16 @@ void PanasonicHeatpumpSwitch::write_state(bool state) {
   case SwitchIds::CONF_ERROR:
     this->parent_->set_command_byte(value, 8);
     break;
-  case SwitchIds::CONF_FORCE_HEATER:
-    this->parent_->set_command_byte(PanasonicCommand::setPlus1Multiply4(value), 5);
+  case SwitchIds::CONF_FORCE_HEATER: {
+    // Byte 5 is shared with holiday mode, main schedule and dry concrete.
+    // Preserve the other fields instead of zeroing the whole byte.
+    int current = this->parent_->get_response_byte(5);
+    if (current < 0)
+      return;
+    uint8_t value_byte = (static_cast<uint8_t>(current) & 0b11110011) | (state ? 0b00001000 : 0b00000100);
+    this->parent_->set_command_byte(value_byte, 5);
     break;
+  }
   case SwitchIds::CONF_QUIET_MODE_SCHEDULE: {
     int current = this->parent_->get_response_byte(7);
     if (current < 0)

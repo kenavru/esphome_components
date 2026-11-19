@@ -267,11 +267,11 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_SET37): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_CELSIUS,
-        ).extend(number_options(-10.0, 0.0, 1.0)),
+        ).extend(number_options(-15.0, 35.0, 1.0)),
         cv.Optional(CONF_SET38): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_CELSIUS,
-        ).extend(number_options(-10.0, 0.0, 1.0)),
+        ).extend(number_options(-15.0, 35.0, 1.0)),
         cv.Optional(CONF_SET46): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_CELSIUS,
