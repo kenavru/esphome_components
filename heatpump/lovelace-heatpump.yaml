@@ -1,0 +1,596 @@
+# Lovelace dashboard for the Panasonic Aquarea ESPHome config (heatpump.yaml)
+#
+# How to use:
+#   Settings -> Dashboards -> Add dashboard -> New dashboard from scratch
+#   Open the dashboard -> Edit -> three-dot menu -> Raw configuration editor
+#   Paste this file and save.
+#
+# Entity IDs assume the ESPHome node name "heatpump" and the entity names used
+# in heatpump.yaml (e.g. sensor.heatpump_outside_temp). If Home Assistant
+# assigned something different, fix the IDs in Developer Tools -> States.
+
+title: Heatpump
+views:
+  - type: sections
+    title: Overview
+    path: overview
+    icon: mdi:heat-pump-outline
+    max_columns: 3
+    sections:
+      - type: grid
+        title: Temperatures
+        cards:
+          - type: gauge
+            entity: sensor.heatpump_outside_temp
+            name: Outside
+            min: -20
+            max: 45
+            needle: true
+            gradient: true
+          - type: gauge
+            entity: sensor.heatpump_main_inlet_temp
+            name: Inlet
+            min: 0
+            max: 70
+            needle: true
+            gradient: true
+          - type: gauge
+            entity: sensor.heatpump_main_outlet_temp
+            name: Outlet
+            min: 0
+            max: 70
+            needle: true
+            gradient: true
+          - type: gauge
+            entity: sensor.heatpump_dhw_temp
+            name: DHW
+            min: 20
+            max: 70
+            needle: true
+            gradient: true
+
+      - type: grid
+        title: Heating
+        cards:
+          - type: thermostat
+            entity: climate.heatpump_zone_1
+            name: Zone 1
+          - type: thermostat
+            entity: climate.heatpump_zone_2
+            name: Zone 2
+          - type: entities
+            title: Heating values
+            entities:
+              - entity: sensor.heatpump_main_target_temp
+                name: Main target
+              - entity: sensor.heatpump_z1_temp
+                name: Z1 temperature
+              - entity: sensor.heatpump_z2_temp
+                name: Z2 temperature
+              - entity: sensor.heatpump_pump_flow
+                name: Flow
+              - entity: sensor.heatpump_pump_speed
+                name: Pump speed
+              - entity: sensor.heatpump_pump_duty
+                name: Pump duty
+              - entity: text_sensor.heatpump_heating_mode
+                name: Heating mode
+
+      - type: grid
+        title: DHW
+        cards:
+          - type: thermostat
+            entity: climate.heatpump_dhw
+            name: DHW
+          - type: entities
+            title: DHW controls
+            entities:
+              - entity: number.heatpump_set_dhw_temp
+                name: Target temperature
+              - entity: switch.heatpump_set_force_dhw
+                name: Force DHW
+              - entity: switch.heatpump_set_force_sterilization
+                name: Force sterilization
+              - entity: sensor.heatpump_dhw_target_temp
+                name: Target (reported)
+              - entity: sensor.heatpump_dhw_temp
+                name: Actual
+              - entity: text_sensor.heatpump_dhw_heater_type
+                name: Heater type
+
+      - type: grid
+        title: Heater summary
+        cards:
+          - type: entities
+            title: Heater state
+            state_color: true
+            entities:
+              - entity: binary_sensor.heatpump_internal_heater_state
+                name: Internal heater
+              - entity: binary_sensor.heatpump_backup_heater_enable
+                name: Backup heater enabled
+              - entity: binary_sensor.heatpump_force_heater_state
+                name: Force heater
+              - entity: binary_sensor.heatpump_defrosting_state
+                name: Defrosting
+              - entity: binary_sensor.heatpump_dhw_defrost
+                name: DHW defrost
+              - entity: binary_sensor.heatpump_sterilization_state
+                name: Sterilization
+              - entity: binary_sensor.heatpump_anti_freeze_mode
+                name: Anti-freeze
+          - type: history-graph
+            title: Heater (24 h)
+            hours_to_show: 24
+            entities:
+              - entity: binary_sensor.heatpump_internal_heater_state
+                name: Internal heater
+              - entity: binary_sensor.heatpump_defrosting_state
+                name: Defrost
+              - entity: binary_sensor.heatpump_force_heater_state
+                name: Force
+              - entity: binary_sensor.heatpump_anti_freeze_mode
+                name: Anti-freeze
+
+      - type: grid
+        title: COP & energy
+        cards:
+          - type: gauge
+            entity: sensor.heatpump_cop_heating
+            name: COP heating
+            min: 0
+            max: 8
+            needle: true
+            gradient: true
+          - type: gauge
+            entity: sensor.heatpump_cop_dhw
+            name: COP DHW
+            min: 0
+            max: 8
+            needle: true
+            gradient: true
+          - type: history-graph
+            title: Power (24 h)
+            hours_to_show: 24
+            entities:
+              - entity: sensor.heatpump_heat_power_production_extra
+                name: Heat production
+              - entity: sensor.heatpump_heat_power_consumption_extra
+                name: Heat consumption
+          - type: statistics-graph
+            title: Daily energy (14 days)
+            chart_type: bar
+            period: day
+            days_to_show: 14
+            stat_types:
+              - state
+            entities:
+              - sensor.heatpump_heat_power_consumption_daily
+              - sensor.heatpump_dhw_power_consumption_daily
+
+      - type: grid
+        title: Controls
+        cards:
+          - type: entities
+            title: Operating mode
+            entities:
+              - entity: select.heatpump_set_operation_mode
+                name: Operation mode
+              - entity: select.heatpump_set_zones
+                name: Zones
+              - entity: select.heatpump_set_holiday_mode
+                name: Holiday mode
+              - entity: select.heatpump_set_quiet_mode
+                name: Quiet mode
+              - entity: select.heatpump_set_powerful_mode
+                name: Powerful mode
+              - entity: select.heatpump_set_heating_control
+                name: Heating control
+              - entity: switch.heatpump_quiet_mode_schedule
+                name: Quiet mode schedule
+          - type: entities
+            title: Main switch
+            entities:
+              - entity: switch.heatpump_set_heatpump
+                name: Heatpump
+              - entity: switch.heatpump_error_reset
+                name: Error reset
+
+      - type: grid
+        title: Status
+        cards:
+          - type: tile
+            entity: text_sensor.heatpump_operating_mode_state
+            name: Operating mode
+            icon: mdi:heat-pump
+          - type: tile
+            entity: text_sensor.heatpump_error
+            name: Error
+            icon: mdi:alert-circle-outline
+            color: red
+          - type: tile
+            entity: binary_sensor.heatpump_defrosting_state
+            name: Defrosting
+            icon: mdi:snowflake-melt
+          - type: tile
+            entity: binary_sensor.heatpump_heatpump_state
+            name: Heatpump state
+          - type: tile
+            entity: binary_sensor.heatpump_uart_client_timed_out
+            name: UART timeout
+          - type: tile
+            entity: text_sensor.heatpump_threeway_valve_state
+            name: Three-way valve
+            icon: mdi:pipe-valve
+
+  - type: sections
+    title: Heater
+    path: heater
+    icon: mdi:radiator
+    max_columns: 3
+    sections:
+      - type: grid
+        title: Gate status
+        cards:
+          - type: markdown
+            content: |
+              ## Backup heater gate
+
+              1. **Backup heater enabled** — master switch in the heat pump
+                 *Installer / custom menu*. Read-only here.
+              2. **Room / DHW heater state** — per-mode permission.
+              3. **Heater ON outdoor temp** — only gates normal heating.
+              4. **Force heater / defrost / anti-freeze / protection** — bypass
+                 layers 2 and 3.
+
+              If the internal heater runs while the master is on, disable the
+              master in the heat-pump menu first.
+          - type: entities
+            title: Gate
+            state_color: true
+            entities:
+              - entity: binary_sensor.heatpump_backup_heater_enable
+                name: 1. Backup heater enabled (master)
+              - entity: select.heatpump_set_room_heater_state
+                name: 2a. Room heater state
+              - entity: select.heatpump_set_dhw_heater_state
+                name: 2b. DHW heater state
+              - entity: sensor.heatpump_heater_on_outdoor_temp
+                name: 3. Heater ON outdoor temp
+              - entity: binary_sensor.heatpump_force_heater_state
+                name: 4a. Force heater
+              - entity: binary_sensor.heatpump_defrosting_state
+                name: 4b. Defrosting
+              - entity: binary_sensor.heatpump_dhw_defrost
+                name: 4c. DHW defrost
+              - entity: binary_sensor.heatpump_sterilization_state
+                name: 4d. Sterilization
+              - entity: binary_sensor.heatpump_anti_freeze_mode
+                name: 4e. Anti-freeze
+
+      - type: grid
+        title: Why is it on?
+        cards:
+          - type: entities
+            title: Context
+            entities:
+              - entity: binary_sensor.heatpump_internal_heater_state
+                name: Internal heater
+              - entity: text_sensor.heatpump_operating_mode_state
+                name: Operating mode
+              - entity: text_sensor.heatpump_threeway_valve_state
+                name: Three-way valve
+              - entity: sensor.heatpump_compressor_freq
+                name: Compressor frequency
+              - entity: sensor.heatpump_main_inlet_temp
+                name: Inlet water
+              - entity: sensor.heatpump_main_outlet_temp
+                name: Outlet water
+              - entity: sensor.heatpump_dhw_temp
+                name: DHW temperature
+              - entity: sensor.heatpump_outside_temp
+                name: Outside
+              - entity: text_sensor.heatpump_error
+                name: Error
+          - type: history-graph
+            title: Heater causality (48 h)
+            hours_to_show: 48
+            entities:
+              - entity: binary_sensor.heatpump_internal_heater_state
+                name: Internal heater
+              - entity: binary_sensor.heatpump_force_heater_state
+                name: Force heater
+              - entity: binary_sensor.heatpump_defrosting_state
+                name: Defrost
+              - entity: binary_sensor.heatpump_dhw_defrost
+                name: DHW defrost
+              - entity: binary_sensor.heatpump_sterilization_state
+                name: Sterilization
+              - entity: sensor.heatpump_main_inlet_temp
+                name: Inlet
+              - entity: sensor.heatpump_dhw_temp
+                name: DHW
+
+      - type: grid
+        title: Heater settings
+        cards:
+          - type: entities
+            title: Deltas and delay
+            entities:
+              - entity: number.heatpump_set_heater_on_outdoor_temp
+                name: Heater ON outdoor temp
+              - entity: number.heatpump_set_heater_start_delta
+                name: Heater start delta
+              - entity: number.heatpump_set_heater_stop_delta
+                name: Heater stop delta
+              - entity: number.heatpump_set_heater_delay_time
+                name: Heater delay
+              - entity: sensor.heatpump_heater_on_outdoor_temp
+                name: Reported outdoor temp
+              - entity: sensor.heatpump_heater_start_delta
+                name: Reported start delta
+              - entity: sensor.heatpump_heater_stop_delta
+                name: Reported stop delta
+              - entity: sensor.heatpump_heater_delay_time
+                name: Reported delay
+          - type: entities
+            title: Runtime
+            entities:
+              - entity: sensor.heatpump_internal_heater_capacity
+                name: Internal heater capacity
+              - entity: sensor.heatpump_room_heater_operations_hours
+                name: Room heater hours
+              - entity: sensor.heatpump_dhw_heater_operations_hours
+                name: DHW heater hours
+
+      - type: grid
+        title: DHW and sterilization
+        cards:
+          - type: entities
+            title: Targets and timers
+            entities:
+              - entity: number.heatpump_set_dhw_temp
+                name: DHW target
+              - entity: number.heatpump_set_sterilization_temp
+                name: Sterilization temperature
+              - entity: number.heatpump_set_sterilization_max_time
+                name: Sterilization hold time
+              - entity: number.heatpump_set_room_operation_max_time
+                name: Room operation max time
+              - entity: number.heatpump_set_dhw_heatup_max_time
+                name: DHW heat-up max time
+              - entity: sensor.heatpump_dhw_temp
+                name: DHW actual
+              - entity: sensor.heatpump_dhw_target_temp
+                name: DHW target (reported)
+              - entity: sensor.heatpump_sterilization_temp
+                name: Sterilization temp (reported)
+              - entity: sensor.heatpump_sterilization_max_time
+                name: Sterilization hold (reported)
+              - entity: binary_sensor.heatpump_sterilization_state
+                name: Sterilization state
+
+      - type: grid
+        title: Notes
+        cards:
+          - type: markdown
+            content: |
+              **If the heater still runs with the master off**
+
+              That is the firmware protection path:
+
+              - defrost / de-ice (always allowed, even when disabled);
+              - anti-freeze: backup heater ON only when water is < 6 °C and
+                the circulation pump has run for 4 minutes;
+              - indoor heat-exchanger protection.
+
+              Do **not** cut the heater supply or its breaker. Panasonic
+              documents that as a cause of malfunction during de-ice.
+
+  - type: sections
+    title: Diagnostics
+    path: diagnostics
+    icon: mdi:gauge
+    max_columns: 3
+    sections:
+      - type: grid
+        title: Refrigerant circuit
+        cards:
+          - type: gauge
+            entity: sensor.heatpump_discharge_temp
+            name: Discharge
+            min: 0
+            max: 120
+            needle: true
+            gradient: true
+          - type: gauge
+            entity: sensor.heatpump_outside_pipe_temp
+            name: Outside pipe
+            min: -30
+            max: 60
+            needle: true
+            gradient: true
+          - type: gauge
+            entity: sensor.heatpump_eva_outlet_temp
+            name: Eva outlet
+            min: -30
+            max: 60
+            needle: true
+            gradient: true
+          - type: entities
+            title: Pressures & compressor
+            entities:
+              - entity: sensor.heatpump_high_pressure
+                name: High pressure
+              - entity: sensor.heatpump_low_pressure
+                name: Low pressure
+              - entity: sensor.heatpump_compressor_freq
+                name: Compressor frequency
+              - entity: sensor.heatpump_compressor_current
+                name: Compressor current
+              - entity: sensor.heatpump_water_pressure
+                name: Water pressure
+              - entity: sensor.heatpump_expansion_valve
+                name: Expansion valve
+
+      - type: grid
+        title: Performance
+        cards:
+          - type: history-graph
+            title: COP (24 h)
+            hours_to_show: 24
+            entities:
+              - entity: sensor.heatpump_cop_heating
+              - entity: sensor.heatpump_cop_dhw
+              - entity: sensor.heatpump_cop_cooling
+          - type: history-graph
+            title: Temperatures (24 h)
+            hours_to_show: 24
+            entities:
+              - entity: sensor.heatpump_outside_temp
+              - entity: sensor.heatpump_main_inlet_temp
+              - entity: sensor.heatpump_main_outlet_temp
+              - entity: sensor.heatpump_dhw_temp
+          - type: entities
+            title: Lifetime
+            entities:
+              - entity: sensor.heatpump_operations_hours
+                name: Operations hours
+              - entity: sensor.heatpump_operations_counter
+                name: Operations counter
+              - entity: sensor.heatpump_room_heater_operations_hours
+                name: Room heater hours
+              - entity: sensor.heatpump_dhw_heater_operations_hours
+                name: DHW heater hours
+
+      - type: grid
+        title: System
+        cards:
+          - type: entities
+            title: Identification
+            entities:
+              - entity: sensor.heatpump_heat_pump_rated_capacity
+                name: Rated capacity
+              - entity: text_sensor.heatpump_heat_pump_type
+                name: Type
+              - entity: text_sensor.heatpump_zones_state
+                name: Zones
+              - entity: text_sensor.heatpump_liquid_type
+                name: Liquid type
+              - entity: text_sensor.heatpump_pump_flowrate_mode
+                name: Flow rate mode
+              - entity: sensor.heatpump_zone_configuration
+                name: Zone configuration code
+          - type: entities
+            title: States
+            state_color: true
+            entities:
+              - entity: binary_sensor.heatpump_external_control
+                name: External control
+              - entity: binary_sensor.heatpump_dhw_installed
+                name: DHW installed
+              - entity: binary_sensor.heatpump_buffer_installed
+                name: Buffer installed
+              - entity: binary_sensor.heatpump_optional_pcb
+                name: Optional PCB
+              - entity: binary_sensor.heatpump_anti_freeze_mode
+                name: Anti-freeze
+              - entity: binary_sensor.heatpump_z1_pump_state
+                name: Z1 pump
+              - entity: binary_sensor.heatpump_z2_pump_state
+                name: Z2 pump
+
+      - type: grid
+        title: Installer / custom menu
+        cards:
+          - type: entities
+            title: Options
+            state_color: true
+            entities:
+              - entity: binary_sensor.heatpump_backup_heater_enable
+                name: Backup heater enabled
+              - entity: binary_sensor.heatpump_cooling_enable
+                name: Cooling enabled
+              - entity: binary_sensor.heatpump_static_pressure
+                name: Static pressure
+              - entity: binary_sensor.heatpump_anti_stick_mode
+                name: Anti-stick mode
+              - entity: binary_sensor.heatpump_defrost_signal
+                name: Defrost signal
+              - entity: text_sensor.heatpump_bivalent_operating_mode
+                name: Bivalent operating mode
+              - entity: binary_sensor.heatpump_bivalent_external_pump
+                name: Bivalent external pump
+              - entity: binary_sensor.heatpump_bivalent_control
+                name: Bivalent control
+              - entity: text_sensor.heatpump_bivalent_mode
+                name: Bivalent mode
+          - type: entities
+            title: Timers
+            entities:
+              - entity: sensor.heatpump_dhw_booster_delay
+                name: DHW booster delay
+              - entity: sensor.heatpump_room_operation_max_time
+                name: Room operation max time
+              - entity: sensor.heatpump_dhw_heatup_max_time
+                name: DHW heat-up max time
+              - entity: sensor.heatpump_bivalent_advanced_start_delay
+                name: Bivalent start delay
+              - entity: sensor.heatpump_bivalent_advanced_stop_delay
+                name: Bivalent stop delay
+              - entity: sensor.heatpump_bivalent_advanced_dhw_delay
+                name: Bivalent DHW delay
+
+      - type: grid
+        title: Bivalent and SG Ready
+        cards:
+          - type: entities
+            title: Bivalent
+            entities:
+              - entity: sensor.heatpump_bivalent_start_temperature
+                name: Start temperature
+              - entity: sensor.heatpump_bivalent_advanced_start_temp
+                name: Advanced start temp
+              - entity: sensor.heatpump_bivalent_advanced_stop_temp
+                name: Advanced stop temp
+              - entity: sensor.heatpump_heat_to_cool_temp
+                name: Heat to cool
+              - entity: sensor.heatpump_cool_to_heat_temp
+                name: Cool to heat
+          - type: entities
+            title: SG Ready (capacities)
+            entities:
+              - entity: sensor.heatpump_sg_ready_1_heat_capacity
+                name: Setting 1 heat capacity
+              - entity: sensor.heatpump_sg_ready_1_dhw_capacity
+                name: Setting 1 DHW capacity
+              - entity: sensor.heatpump_sg_ready_2_heat_capacity
+                name: Setting 2 heat capacity
+              - entity: sensor.heatpump_sg_ready_2_dhw_capacity
+                name: Setting 2 DHW capacity
+
+      - type: grid
+        title: Sensor calibration
+        cards:
+          - type: entities
+            title: Offsets
+            entities:
+              - entity: sensor.heatpump_sensor_offset_remote_th1
+                name: Remote Th1
+              - entity: sensor.heatpump_sensor_offset_outdoor
+                name: Outdoor
+              - entity: sensor.heatpump_sensor_offset_return
+                name: Return
+              - entity: sensor.heatpump_sensor_offset_dhw_tank
+                name: DHW tank
+              - entity: sensor.heatpump_sensor_offset_flow
+                name: Flow
+          - type: markdown
+            content: |
+              **M-series-only values**
+
+              The following are expected to be empty / -128 / UNDEFINED on a
+              K-series unit: `Heating on outdoor temp`, `Heating on delay`,
+              `Efficiency stage times`, `Extra pump use/mode`, `Heat pump
+              model`, and SG Ready power settings. They are omitted from the
+              cards above.

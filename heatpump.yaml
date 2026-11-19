@@ -1,0 +1,938 @@
+# =============================================================================
+# Panasonic Aquarea K-series 5 kW - ESPHome configuration
+#
+# Node: heatpump | ESP32-C3 | UART 9600 8E1 on GPIO3 (TX) / GPIO4 (RX)
+# Component: kenavru/esphome_components, branch feature/panasonic-heishamon-k-series
+# Fork extras: TOP170-TOP198 telemetry, signed heater deltas, extra controls.
+#
+# Backup-heater settings (what each one does):
+#   Set Heater Start Delta      set22  -10..0 K   heater starts at target + delta
+#   Set Heater Stop Delta       set23  -10..0 K   heater stops at target + delta
+#   Set Heater Delay Time       set21  0..60 min  delay before the heater may start
+#   Set Heater On Outdoor Temp  set46  -20..20 C  heater allowed only below this
+#   Set Room Heater State       set45  Blocked/Free
+#   Set DHW Heater State        set44  Blocked/Free
+#
+# The master "Backup Heater Enable" (top167) is READ-ONLY over CN-CNT.
+# Disable it on the pump: hold Menu ~10 s -> Custom menu -> Back-up heater ->
+# "Do not use". Frost/defrost/heat-exchanger protection can still use the heater.
+# =============================================================================
+
+# Keep this file next to your secrets.yaml.
+
+esphome:
+  name: heatpump
+  friendly_name: heatpump
+
+esp32:
+  board: esp32-c3-devkitm-1
+  variant: esp32c3
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/kenavru/esphome_components
+      ref: feature/panasonic-heishamon-k-series
+    components: [ panasonic_heatpump ]
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+logger:
+  baud_rate: 0
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: none
+  fast_connect: true
+
+captive_portal:
+
+uart:
+  - id: uart_heatpump
+    tx_pin: GPIO3
+    rx_pin: GPIO4
+    baud_rate: 9600
+    data_bits: 8
+    parity: EVEN
+    stop_bits: 1
+
+# Polling / UART:
+#   update_interval: how often the pump is polled
+#   request_send_interval: gap between queued UART requests (raise if checksum errors)
+#   uart_client_timeout: fallback polling when a CZ-TAW1 stops requesting
+#   log_uart_msg: verbose UART logging (diagnostics only)
+panasonic_heatpump:
+  id: my_heatpump
+  uart_id: uart_heatpump
+  # Set to true only while diagnosing; it floods the log with every UART frame.
+  log_uart_msg: false
+  update_interval: 5s
+  # Space UART requests so commands are not lost to bus collisions.
+  # The component default is 250ms; slower pumps need 1s or 1500ms.
+  request_send_interval: 1s
+  uart_client_timeout: 10s
+
+sensor:
+  - platform: panasonic_heatpump
+    top1:
+      name: "Pump Flow"
+    top5:
+      name: "Main Inlet Temp"
+    top6:
+      name: "Main Outlet Temp"
+    top7:
+      name: "Main Target Temp"
+    top8:
+      name: "Compressor Freq"
+    top9:
+      name: "DHW Target Temp"
+    top10:
+      name: "DHW Temp"
+    top11:
+      name: "Operations Hours"
+    top12:
+      name: "Operations Counter"
+    top14:
+      name: "Outside Temp"
+    # --- Power / energy ---
+    top15:
+      name: "Heat Power Production"
+    top16:
+      name: "Heat Power Consumption"
+      id: heat_power_consumption
+    top21:
+      name: "Outside Pipe Temp"
+    top22:
+      name: "DHW Heat Delta"
+    top23:
+      name: "Heat Delta"
+    top24:
+      name: "Cool Delta"
+    top25:
+      name: "DHW Holiday Shift Temp"
+    top27:
+      name: "Z1 Heat Request Temp"
+    top28:
+      name: "Z1 Cool Request Temp"
+    top29:
+      name: "Z1 Heat Curve Target High Temp"
+    top30:
+      name: "Z1 Heat Curve Target Low Temp"
+    top31:
+      name: "Z1 Heat Curve Outside High Temp"
+    top32:
+      name: "Z1 Heat Curve Outside Low Temp"
+    top33:
+      name: "Room Thermostat Temp"
+    top34:
+      name: "Z2 Heat Request Temp"
+    top35:
+      name: "Z2 Cool Request Temp"
+    top36:
+      name: "Z1 Water Temp"
+    top37:
+      name: "Z2 Water Temp"
+    top38:
+      name: "Cool Power Production"
+    top39:
+      name: "Cool Power Consumption"
+      id: cool_power_consumption
+    top40:
+      name: "DHW Power Production"
+    top41:
+      name: "DHW Power Consumption"
+      id: dhw_power_consumption
+    top42:
+      name: "Z1 Water Target Temp"
+    top43:
+      name: "Z2 Water Target Temp"
+    top45:
+      name: "Room Holiday Shift Temp"
+    top46:
+      name: "Buffer Temp"
+    top47:
+      name: "Solar Temp"
+    top48:
+      name: "Pool Temp"
+    top49:
+      name: "Main Hex Outlet Temp"
+    top50:
+      name: "Discharge Temp"
+    top51:
+      name: "Inside Pipe Temp"
+    top52:
+      name: "Defrost Temp"
+    top53:
+      name: "Eva Outlet Temp"
+    top54:
+      name: "Bypass Outlet Temp"
+    top55:
+      name: "Ipm Temp"
+    top56:
+      name: "Z1 Temp"
+    top57:
+      name: "Z2 Temp"
+    top62:
+      name: "Fan1 Motor Speed"
+    top63:
+      name: "Fan2 Motor Speed"
+    top64:
+      name: "High Pressure"
+    top65:
+      name: "Pump Speed"
+    top66:
+      name: "Low Pressure"
+    top67:
+      name: "Compressor Current"
+    top70:
+      name: "Sterilization Temp"
+    top71:
+      name: "Sterilization Max Time"
+    top72:
+      name: "Z1 Cool Curve Target High Temp"
+    top73:
+      name: "Z1 Cool Curve Target Low Temp"
+    top74:
+      name: "Z1 Cool Curve Outside High Temp"
+    top75:
+      name: "Z1 Cool Curve Outside Low Temp"
+    top77:
+      name: "Heating Off Outdoor Temp"
+    # Outdoor temperature below which the backup heater is allowed (-20 = effectively off).
+    top78:
+      name: "Heater On Outdoor Temp"
+    top79:
+      name: "Heat To Cool Temp"
+    top80:
+      name: "Cool To Heat Temp"
+    top82:
+      name: "Z2 Heat Curve Target High Temp"
+    top83:
+      name: "Z2 Heat Curve Target Low Temp"
+    top84:
+      name: "Z2 Heat Curve Outside High Temp"
+    top85:
+      name: "Z2 Heat Curve Outside Low Temp"
+    top86:
+      name: "Z2 Cool Curve Target High Temp"
+    top87:
+      name: "Z2 Cool Curve Target Low Temp"
+    top88:
+      name: "Z2 Cool Curve Outside High Temp"
+    top89:
+      name: "Z2 Cool Curve Outside Low Temp"
+    # --- Backup heater status / settings ---
+    # Room heater runtime (hours).
+    top90:
+      name: "Room Heater Operations Hours"
+    # DHW heater runtime (hours).
+    top91:
+      name: "DHW Heater Operations Hours"
+    top93:
+      name: "Pump Duty"
+    top95:
+      name: "Max Pump Duty"
+    # Delay before the backup heater may start (0..60 min on K).
+    top96:
+      name: "Heater Delay Time"
+    # Backup heater start delta (-10..0 K; -10 = 10 K below target).
+    top97:
+      name: "Heater Start Delta"
+    # Backup heater stop delta (-10..0 K; 0 = stop at target).
+    top98:
+      name: "Heater Stop Delta"
+    top102:
+      name: "Solar On Delta"
+    top103:
+      name: "Solar Off Delta"
+    top104:
+      name: "Solar Frost Protection"
+    top105:
+      name: "Solar High Limit"
+    top113:
+      name: "Buffer Tank Delta"
+    # --- Refrigerant circuit / diagnostics ---
+    top115:
+      name: "Water Pressure"
+    top116:
+      name: "Second Inlet Temp"
+    top117:
+      name: "Economizer Outlet Temp"
+    top118:
+      name: "Second Room Thermostat Temp"
+    top127:
+      name: "Z1 Valve PID"
+    top128:
+      name: "Z2 Valve PID"
+    # --- Bivalent / installer / SG Ready ---
+    top131:
+      name: "Bivalent Start Temperature"
+    top134:
+      name: "Bivalent Advanced Start Temp"
+    top135:
+      name: "Bivalent Advanced Stop Temp"
+    top136:
+      name: "Bivalent Advanced Start Delay"
+    top137:
+      name: "Bivalent Advanced Stop Delay"
+    top138:
+      name: "Bivalent Advanced DHW Delay"
+    top142:
+      name: "Expansion Valve"
+    top146:
+      name: "Zone Configuration"
+    # Configured internal heater capacity (3/6/9 kW).
+    top147:
+      name: "Internal Heater Capacity"
+    top152:
+      name: "Dry Concrete Target Temp"
+    top153:
+      name: "Pool Delta"
+    top154:
+      name: "SG Ready 1 Heat Capacity"
+    top155:
+      name: "SG Ready 1 DHW Capacity"
+    top156:
+      name: "SG Ready 2 Heat Capacity"
+    top157:
+      name: "SG Ready 2 DHW Capacity"
+    top158:
+      name: "Room Operation Max Time"
+    top159:
+      name: "DHW Heatup Max Time"
+    top169:
+      name: "Heat Request Temp With Buffer"
+    # --- new HeishaMon parity TOPs ---
+    # --- HeishaMon parity TOPs ---
+    top171:
+      name: "Heating On Outdoor Temp"
+    top172:
+      name: "Heating On Delay"
+    top173:
+      name: "DHW Booster Delay"
+    top174:
+      name: "Efficiency Stage 1 Time"
+    top175:
+      name: "Efficiency Stage 2 Time"
+    top176:
+      name: "Efficiency Stage 3 Time"
+    top177:
+      name: "Sensor Offset Remote Th1"
+    top178:
+      name: "Sensor Offset Outdoor"
+    top184:
+      name: "SG Ready 1 DHW Power"
+    top185:
+      name: "SG Ready 1 Heat Power"
+    top186:
+      name: "SG Ready 1 Cool Power"
+    top187:
+      name: "SG Ready 2 DHW Power"
+    top188:
+      name: "SG Ready 2 Heat Power"
+    top189:
+      name: "SG Ready 2 Cool Power"
+    top190:
+      name: "SG Ready Stop Power"
+    top191:
+      name: "SG Ready 1 Cool Capacity"
+    top192:
+      name: "SG Ready 2 Cool Capacity"
+    top193:
+      name: "Sensor Offset Return"
+    top195:
+      name: "Sensor Offset DHW Tank"
+    top196:
+      name: "Sensor Offset Flow"
+    top197:
+      name: "Heat Pump Rated Capacity"
+
+    # --- Extra data block (power/energy) ---
+    xtop0:
+      name: "Heat Power Consumption Extra"
+      id: heat_power_consumption_extra
+    xtop1:
+      name: "Cool Power Consumption Extra"
+      id: cool_power_consumption_extra
+    xtop2:
+      name: "DHW Power Consumption Extra"
+      id: dhw_power_consumption_extra
+    xtop3:
+      name: "Heat Power Production Extra"
+      id: heat_power_production_extra
+    xtop4:
+      name: "Cool Power Production Extra"
+      id: cool_power_production_extra
+    xtop5:
+      name: "DHW Power Production Extra"
+      id: dhw_power_production_extra
+
+  - platform: total_daily_energy
+    name: Heat Power Consumption Daily
+    power_id: heat_power_consumption
+    time_id: ha_time
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+  - platform: total_daily_energy
+    name: Cool Power Consumption Daily
+    power_id: cool_power_consumption
+    time_id: ha_time
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+  - platform: total_daily_energy
+    name: DHW Power Consumption Daily
+    power_id: dhw_power_consumption
+    time_id: ha_time
+    unit_of_measurement: kWh
+    state_class: total_increasing
+    device_class: energy
+    accuracy_decimals: 3
+    filters:
+      - multiply: 0.001
+
+  - platform: template
+    name: "COP Heating"
+    unit_of_measurement: "COP"
+    accuracy_decimals: 2
+    state_class: measurement
+    update_interval: 30s
+    lambda: |-
+      if (id(heat_power_production_extra).state > 0 &&
+          id(heat_power_consumption_extra).state > 0) {
+        return id(heat_power_production_extra).state /
+               id(heat_power_consumption_extra).state;
+      }
+      return 0.0;
+
+  - platform: template
+    name: "COP Cooling"
+    unit_of_measurement: "COP"
+    accuracy_decimals: 2
+    state_class: measurement
+    update_interval: 30s
+    lambda: |-
+      if (id(cool_power_production_extra).state > 0 &&
+          id(cool_power_consumption_extra).state > 0) {
+        return id(cool_power_production_extra).state /
+               id(cool_power_consumption_extra).state;
+      }
+      return 0.0;
+
+  - platform: template
+    name: "COP DHW"
+    unit_of_measurement: "COP"
+    accuracy_decimals: 2
+    state_class: measurement
+    update_interval: 30s
+    lambda: |-
+      if (id(dhw_power_production_extra).state > 0 &&
+          id(dhw_power_consumption_extra).state > 0) {
+        return id(dhw_power_production_extra).state /
+               id(dhw_power_consumption_extra).state;
+      }
+      return 0.0;
+
+binary_sensor:
+  - platform: panasonic_heatpump
+    uart_client_timed_out:
+      name: "UART Client Timed Out"
+    # --- Main / heater state ---
+    top0:
+      name: "Heatpump State"
+    top2:
+      name: "Force DHW State"
+    top3:
+      name: "Quiet Mode Schedule"
+    top13:
+      name: "Main Schedule State"
+    # Defrost active.
+    top26:
+      name: "Defrosting State"
+    # Real internal heater relay state (on = 3 kW element active).
+    top60:
+      name: "Internal Heater State"
+    # External heater/booster relay state.
+    top61:
+      name: "External Heater State"
+    # Force heater: remote Heater button or automatic on error.
+    top68:
+      name: "Force Heater State"
+    # DHW sterilization active.
+    top69:
+      name: "Sterilization State"
+    # --- Installation / external controls ---
+    top99:
+      name: "Buffer Installed"
+    top100:
+      name: "DHW Installed"
+    top108:
+      name: "Alt External Sensor"
+    # Anti-freeze function enabled.
+    top109:
+      name: "Anti Freeze Mode"
+    top110:
+      name: "Optional PCB"
+    top119:
+      name: "External Control"
+    top120:
+      name: "External Heat Cool Control"
+    top121:
+      name: "External Error Signal"
+    top122:
+      name: "External Compressor Control"
+    top123:
+      name: "Z2 Pump State"
+    top124:
+      name: "Z1 Pump State"
+    top129:
+      name: "Bivalent Control"
+    top132:
+      name: "Bivalent Advanced Heat"
+    top133:
+      name: "Bivalent Advanced DHW"
+    top144:
+      name: "Dry Concrete State"
+    top149:
+      name: "SG Ready Control"
+    top150:
+      name: "Demand Control"
+    # DHW defrost active (separate from normal defrost).
+    top151:
+      name: "DHW Defrost"
+    top160:
+      name: "Quiet Mode Actual State"
+    top161:
+      name: "Powerful Mode Actual State"
+    top163:
+      name: "External Switch State"
+    top164:
+      name: "Bivalent Boiler Contact State"
+    top165:
+      name: "Z2 Active"
+    top166:
+      name: "Z1 Active"
+    # Custom-menu master backup-heater enable. Read-only over CN-CNT.
+    top167:
+      name: "Backup Heater Enable"
+    top168:
+      name: "Cooling Enable"
+    # --- new HeishaMon parity binary sensors ---
+    top170:
+      name: "Static Pressure"
+    top179:
+      name: "Anti Stick Mode"
+    top181:
+      name: "Bivalent External Pump"
+    top194:
+      name: "Defrost Signal"
+
+text_sensor:
+  - platform: panasonic_heatpump
+    # --- Mode / valve / error / heater state ---
+    # Operating mode reported by the pump (HEAT / TANK / ...).
+    top4:
+      name: "Operating Mode State"
+    top17:
+      name: "Powerful Mode Time"
+    top18:
+      name: "Quiet Mode Level"
+    top19:
+      name: "Holiday Mode State"
+    # Three-way valve position (DHW tank / heating).
+    top20:
+      name: "ThreeWay Valve State"
+    # Error code (Hxx/Fxx) or 'No error'.
+    top44:
+      name: "Error"
+    # DHW heater allowed (Free) or blocked.
+    top58:
+      name: "DHW Heater State"
+    # Room heater allowed (Free) or blocked.
+    top59:
+      name: "Room Heater State"
+    # Heating water control: Compensation curve or Direct.
+    top76:
+      name: "Heating Mode"
+    top81:
+      name: "Cooling Mode"
+    top92:
+      name: "Heat Pump Model"
+    top94:
+      name: "Zones State"
+    top101:
+      name: "Solar Mode"
+    top106:
+      name: "Pump Flowrate Mode"
+    top107:
+      name: "Liquid Type"
+    top111:
+      name: "Z1 Sensor Settings"
+    top112:
+      name: "Z2 Sensor Settings"
+    top114:
+      name: "External Pad Heater"
+    top125:
+      name: "TwoWay Valve State"
+    top126:
+      name: "ThreeWay Valve State2"
+    top130:
+      name: "Bivalent Mode"
+    # Heating control: Comfort or Efficiency.
+    top139:
+      name: "Heating Control"
+    top140:
+      name: "Smart DHW"
+    top141:
+      name: "Quiet Mode Priority"
+    top143:
+      name: "DHW Sensor Selection"
+    top145:
+      name: "DHW Capacity Mode"
+    # DHW heater type: Internal (backup) or External (booster).
+    top148:
+      name: "DHW Heater Type"
+    top162:
+      name: "Heat Cool Switch State"
+    # --- new HeishaMon parity text sensors ---
+    top180:
+      name: "Bivalent Operating Mode"
+    top182:
+      name: "Extra Pump Use"
+    top183:
+      name: "Extra Pump Mode"
+    top198:
+      name: "Heat Pump Type"
+
+number:
+  - platform: panasonic_heatpump
+    # --- Zone temperatures ---
+    # Z1 heat request: shift -5..5 in curve/shift mode, absolute 20..60 in Direct mode.
+    set5:
+      name: "Set Z1 Heat Request Temperature"
+      # Direct heating mode: absolute water target (K-series 20..60 °C).
+      # Use -5..5 instead if you switch the heat pump to shift/compensation mode.
+      min_value: 20
+      max_value: 60
+      step: 1
+    # Z1 cool request: shift -5..5, or absolute 5..20 in Direct cool.
+    set6:
+      name: "Set Z1 Cool Request Temperature"
+    # Z2 heat request (same rules as set5).
+    set7:
+      name: "Set Z2 Heat Request Temperature"
+      min_value: 20
+      max_value: 60
+      step: 1
+    # Z2 cool request (same rules as set6).
+    set8:
+      name: "Set Z2 Cool Request Temperature"
+    # --- DHW / pump ---
+    # DHW target temperature (40..75 °C).
+    set11:
+      name: "Set DHW Temp"
+    # Maximum pump duty (service value, 64..254).
+    set15:
+      name: "Set Max Pump Duty"
+    # --- Zone curves / deltas ---
+    # Zone heating/cooling curve points (used only in Compensation curve mode).
+    set16_01:
+      name: "Set Zone1 Heat Target High"
+    set16_02:
+      name: "Set Zone1 Heat Target Low"
+    set16_03:
+      name: "Set Zone1 Heat Outside Low"
+    set16_04:
+      name: "Set Zone1 Heat Outside High"
+    set16_05:
+      name: "Set Zone2 Heat Target High"
+    set16_06:
+      name: "Set Zone2 Heat Target Low"
+    set16_07:
+      name: "Set Zone2 Heat Outside Low"
+    set16_08:
+      name: "Set Zone2 Heat Outside High"
+    set16_09:
+      name: "Set Zone1 Cool Target High"
+    set16_10:
+      name: "Set Zone1 Cool Target Low"
+    set16_11:
+      name: "Set Zone1 Cool Outside Low"
+    set16_12:
+      name: "Set Zone1 Cool Outside High"
+    set16_13:
+      name: "Set Zone2 Cool Target High"
+    set16_14:
+      name: "Set Zone2 Cool Target Low"
+    set16_15:
+      name: "Set Zone2 Cool Outside Low"
+    set16_16:
+      name: "Set Zone2 Cool Outside High"
+    # Floor heating delta (1..15 K).
+    set18:
+      name: "Set Floor Heat Delta"
+    # Floor cooling delta (1..15 K).
+    set19:
+      name: "Set Floor Cool Delta"
+    # DHW reheat delta (-12..-2 K).
+    set20:
+      name: "Set DHW Heat Delta"
+    # --- Backup heater ---
+    # Backup heater delay: 0..60 min (K-series clamps above 60).
+    set21:
+      name: "Set Heater Delay Time"
+      # K-series clamps this at 60 min: values above 60 revert to 60.
+      min_value: 0
+      max_value: 60
+      step: 1
+    # Backup heater start delta: -10..0 K (K-series clamps below -10).
+    set22:
+      name: "Set Heater Start Delta"
+      # K-series clamps this at -10 K: values below -10 revert to -10.
+      min_value: -10
+      max_value: 0
+      step: 1
+    # Backup heater stop delta: -10..0 K.
+    set23:
+      name: "Set Heater Stop Delta"
+      # K-series range observed: -10 .. 0 K.
+      min_value: -10
+      max_value: 0
+      step: 1
+    # --- Buffer / heating / bivalent ---
+    # Buffer tank delta (0..10 K).
+    set27:
+      name: "Set Buffer Delta"
+    # Outdoor temperature at which heating stops (5..35 °C).
+    set29:
+      name: "Set Heating Off Outdoor Temp"
+    # Bivalent start temperature (-15..35 °C).
+    set36:
+      name: "Set Bivalent Start Temp"
+    # Bivalent advanced-parallel start temperature (-15..35 °C).
+    set37:
+      name: "Set Bivalent AP Start Temp"
+      min_value: -15
+      max_value: 35
+      step: 1
+    # Bivalent advanced-parallel stop temperature (-15..35 °C).
+    set38:
+      name: "Set Bivalent AP Stop Temp"
+      min_value: -15
+      max_value: 35
+      step: 1
+    # Outdoor temperature for backup heater ON: -20..20 °C (-20 = effectively off).
+    set46:
+      name: "Set Heater On Outdoor Temp"
+      min_value: -20
+      max_value: 20
+      step: 1
+    # Outdoor temperature for automatic Heat -> Cool switching (11..25 °C).
+    set47:
+      name: "Set Heat To Cool Temp"
+    # Outdoor temperature for automatic Cool -> Heat switching (5..14 °C).
+    set48:
+      name: "Set Cool To Heat Temp"
+    # --- new HeishaMon parity numbers ---
+    # --- Sterilization / timing ---
+    # DHW sterilization target (55..75 °C).
+    set_sterilization_temp:
+      name: "Set Sterilization Temp"
+    # DHW sterilization hold time (5..60 min, 5-min steps).
+    set_sterilization_max_time:
+      name: "Set Sterilization Max Time"
+    # Max room heating time before DHW (30..7620 min, 30-min steps).
+    set_room_operation_max_time:
+      name: "Set Room Operation Max Time"
+    # Max DHW heat-up time (1..254 min).
+    set_dhw_heatup_max_time:
+      name: "Set DHW Heatup Max Time"
+
+switch:
+  - platform: panasonic_heatpump
+    # --- Main / service ---
+    # Heat pump ON/OFF (same as the remote ON/OFF).
+    set1:
+      name: "Set Heatpump"
+    # Force DHW (only effective if the operation mode includes TANK).
+    set10:
+      name: "Set Force DHW"
+    # Force defrost: service function, leave off.
+    set12:
+      name: "Set Force Defrost"  # service function - leave off
+    # Force sterilization: service function, leave off.
+    set13:
+      name: "Set Force Sterilization"  # service function - leave off
+    # Pump service mode (max speed), leave off.
+    set14:
+      name: "Set Pump"
+    # --- Schedule / sensors / buffer / external ---
+    # Main weekly schedule ON/OFF.
+    set24:
+      name: "Set Main Schedule"
+    # Alternative outdoor sensor ON/OFF.
+    set25:
+      name: "Set Alt External Sensor"
+    # Buffer tank installed ON/OFF.
+    set28:
+      name: "Set Buffer"
+    # External control switch.
+    set30:
+      name: "Set External Control"
+    # External error signal.
+    set31:
+      name: "Set External Error"
+    # External compressor control.
+    set32:
+      name: "Set External Compressor Control"
+    # External heat/cool control.
+    set33:
+      name: "Set External Heat Cool Control"
+    # Bivalent control.
+    set34:
+      name: "Set Bivalent Control"
+    # Reset/restart the heat pump (clears latched errors).
+    error_reset:
+      name: "Error Reset"
+    # --- new HeishaMon parity switches ---
+    # WARNING: force_heater is the remote's "Heater" button and deliberately
+    # runs the 3 kW backup heater. Uncomment only while diagnosing.
+    #force_heater:
+    #  name: "Force Heater"
+    # Enable/disable the quiet-mode schedule (top3).
+    quiet_mode_schedule:
+      name: "Quiet Mode Schedule"
+
+select:
+  - platform: panasonic_heatpump
+    # Cooling is disabled in the heat pump custom menu.
+    cool_mode: false
+    # --- User modes ---
+    # Holiday mode: Off / Scheduled / Active.
+    set2:
+      name: "Set Holiday Mode"
+    # Quiet mode: Off / Level 1 / 2 / 3 (caps compressor/fan).
+    set3:
+      name: "Set Quiet Mode"
+    # Powerful mode: Off / 30 / 60 / 90 min.
+    set4:
+      name: "Set Powerful Mode"
+    # --- Operation / zones ---
+    # Operation mode: TANK / HEAT / HEAT+TANK (COOL/AUTO only with cool_mode).
+    set9:
+      name: "Set Operation Mode"
+    # Active zones: Zone 1 / Zone 2 / Zone 1 & 2.
+    set17:
+      name: "Set Zones"
+    # External pad heater: Disabled / Type-A / Type-B.
+    set26:
+      name: "Set External PadHeater"
+    # --- Bivalent / heating control ---
+    # Bivalent mode: Alternative / Parallel / Advanced parallel.
+    set35:
+      name: "Set Bivalent Mode"
+    # Heating control: Comfort (fast) / Efficiency (compressor ramp limit; can trigger the heater at low flow temps).
+    set39:
+      name: "Set Heating Control"
+    # Smart DHW: Variable / Standard.
+    set40:
+      name: "Set Smart DHW"
+    # Quiet priority: Sound / Capacity.
+    set41:
+      name: "Set Quiet Mode Priority"
+    # Pump flow rate mode: DeltaT (variable, efficient) / Max. duty (fixed).
+    set42:
+      name: "Set Pump Flow Rate Mode"
+    # --- DHW sensor / heater permission ---
+    # DHW sensor selection: Top / Center (All-In-One).
+    set43:
+      name: "Set DHW Sensor Selection"
+    # DHW backup/booster heater: Blocked / Free. Use Blocked to stop heater in DHW.
+    set44:
+      name: "Set DHW Heater State"
+    # Room backup heater: Blocked / Free. Use Blocked to stop heater in heating.
+    set45:
+      name: "Set Room Heater State"
+
+climate:
+  - platform: panasonic_heatpump
+    # Cooling is disabled on this unit (Cooling Enable = off), so use a
+    # single-point heat target. Set true only after unlocking COOL.
+    cool_mode: false
+    # DHW tank target (20..65 °C).
+    tank:
+      name: "DHW"
+    # Zone 1 water target. In Direct mode use min 20 / max 60; in shift mode -5..5.
+    zone1:
+      name: "Zone 1"
+      # Direct heating mode range (K-series). Use -5..5 for shift mode.
+      min_temperature: 20
+      max_temperature: 60
+      temperature_step: 1
+    # Zone 2 water target (same rules as zone1).
+    zone2:
+      name: "Zone 2"
+      min_temperature: 20
+      max_temperature: 60
+      temperature_step: 1
+
+# Optional: native water_heater entity for the DHW tank.
+# If you enable this, remove "tank:" from the climate block above.
+#water_heater:
+#  - platform: panasonic_heatpump
+#    tank:
+#      name: "DHW"
+
+# ---------------------------------------------------------------------------
+# EXPERIMENTAL: try to clear the "Backup heater enable" custom-menu bit
+# over CN-CNT. HeishaMon documents TOP167 as read-only, so this may be
+# ignored. It preserves the other bits of byte 120 and only changes the
+# backup-heater field (bits 4-5: off = 0x10, on = 0x20).
+#
+# Uncomment, flash, press "Try: Backup Heater Off", then watch
+# binary_sensor.heatpump_backup_heater_enable for several minutes and after
+# a power cycle. If it stays off, the write worked. If it flips back, the
+# indoor unit/controller owns the setting and you must use the custom menu.
+# ---------------------------------------------------------------------------
+#button:
+#  - platform: template
+#    name: "Try: Backup Heater Off"
+#    on_press:
+#      - lambda: |-
+#          auto *hp = id(my_heatpump);
+#          int current = hp->get_response_byte(120);
+#          if (current < 0) {
+#            ESP_LOGW("heater", "No response yet, try again");
+#            return;
+#          }
+#          uint8_t value = (static_cast<uint8_t>(current) & 0xCF) | 0x10;
+#          hp->set_command_byte(value, 120);
+#          ESP_LOGI("heater", "byte120 0x%02X -> 0x%02X (backup heater off)", current, value);
+#  - platform: template
+#    name: "Try: Backup Heater On"
+#    on_press:
+#      - lambda: |-
+#          auto *hp = id(my_heatpump);
+#          int current = hp->get_response_byte(120);
+#          if (current < 0) return;
+#          uint8_t value = (static_cast<uint8_t>(current) & 0xCF) | 0x20;
+#          hp->set_command_byte(value, 120);
+#          ESP_LOGI("heater", "byte120 0x%02X -> 0x%02X (backup heater on)", current, value);
