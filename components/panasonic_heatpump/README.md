@@ -594,6 +594,7 @@ text_sensor:
 All numbers are optional and all options from [number component](https://esphome.io/components/number/) can be applied.  
 Additionally the options `min_value`, `max_value` and `step` can override the default limits of each set entitiy.  
 This is usefull for example for `set5` to `set8` if `direct temperature` is configured instead of `compensation curve` (see `top76` and `top81`).  
+In Direct mode the numbers are absolute temperatures, not shifts: use `min_value: 20`, `max_value: 60` for `set5` / `set7` (heat) and `min_value: 5`, `max_value: 20` for `set6` / `set8` (cool). Do the same on the `zone1` / `zone2` climates with `min_temperature` / `max_temperature`.
 Here a list of all supported numbers:
 
 ```yaml
@@ -847,9 +848,10 @@ text_sensor:
 
 ## Model-specific notes (K / L series)
 
-- **Heater deltas are signed.** On K series the installer menu items *Water temperature for heater ON* and *Water temperature for heater OFF* are negative offsets from the water setpoint (defaults around -4 °C and -2 °C). `set22` / `set23` therefore accept negative values (-20 … 20 K). A pump reporting -10 is valid.
+- **Heater deltas are signed and clamped.** On K series the installer menu items *Water temperature for heater ON* and *Water temperature for heater OFF* are negative offsets from the water setpoint (defaults around -4 °C and -2 °C). The heat pump accepts **-10 … 0 K**; values below -10 (e.g. -11 or -14) are applied transiently and then revert to -10. `set22` / `set23` therefore default to -10 … 0 K.
+- **Heater delay is clamped at 60 min.** `set21` defaults to 0 … 60 minutes; values above 60 (e.g. 250) revert to 60 on this generation.
 - **`set46` accepts -20 °C on K series.** The unit reports -20 °C even though older HeishaMon documentation says the lower bound is -15 °C; the component range is -20 … 20.
-- **`set21` (heater delay) is not J-series only.** The protocol documentation marks TOP96-TOP98 as J/K/L; the K series exposes the same delay/delta fields. Older HeishaMon topic documentation that says "only J-series" for SET21-SET23 is outdated.
+- **Direct mode needs different ranges.** In Direct mode, `set5`-`set8` are absolute water temperatures, not shifts: heat 20 … 60 °C, cool 5 … 20 °C. Override `min_value` / `max_value` on those numbers. The `zone1` / `zone2` climates must likewise override `min_temperature` / `max_temperature` (20 … 60 °C for heating). If cooling is disabled, set `cool_mode: false` on the climate and select; with `cool_mode: true` the climate uses a two-point heat/cool target that shares one min/max range.
 - **Heater enable has two layers.** `set44` / `set45` (`top58` / `top59`) only allow or block the heater per mode. `top167 Backup Heater Enable` is the custom-menu master switch and is **read-only** over CN-CNT. To turn the backup heater off completely, use the controller's *Installer / custom menu → Back-up heater*.
 - **Disabled does not mean never.** The K/L indoor unit still energises the backup heater for defrost, anti-freeze and indoor heat-exchanger protection. Panasonic documents this explicitly ("Backup heater is automatically turned ON when it is disabled … protection control of the indoor unit heat exchanger"). Do not cut the heater supply to prevent it: low water temperature during deice can then raise a malfunction.
 - **Model-specific TOPs.** `top115` (water pressure), `top117` (economizer outlet), `top141` (quiet mode priority), `top143` (DHW sensor selection, All-In-One only), `top151` (DHW defrost), `top162` (heat/cool switch), `top167`/`top168` (custom menu) and `top197`/`top198` (rated capacity / Standard vs T-CAP) are K/L series values. `top145` (DHW capacity mode) is J-series only, and `top126` (second inlet) is L-series only; they may read as undefined on other models.

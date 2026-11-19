@@ -243,15 +243,15 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_SET21): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_MINUTE,
-        ).extend(number_options(0.0, 250.0, 1.0)),
+        ).extend(number_options(0.0, 60.0, 1.0)),
         cv.Optional(CONF_SET22): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_KELVIN,
-        ).extend(number_options(-20.0, 20.0, 1.0)),
+        ).extend(number_options(-10.0, 0.0, 1.0)),
         cv.Optional(CONF_SET23): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_KELVIN,
-        ).extend(number_options(-20.0, 20.0, 1.0)),
+        ).extend(number_options(-10.0, 0.0, 1.0)),
         cv.Optional(CONF_SET27): number.number_schema(
             PanasonicHeatpumpNumber,
             unit_of_measurement=UNIT_KELVIN,
