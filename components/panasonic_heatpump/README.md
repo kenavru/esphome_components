@@ -848,6 +848,7 @@ text_sensor:
 ## Model-specific notes (K / L series)
 
 - **Heater deltas are signed.** On K series the installer menu items *Water temperature for heater ON* and *Water temperature for heater OFF* are negative offsets from the water setpoint (defaults around -4 °C and -2 °C). `set22` / `set23` therefore accept negative values (-20 … 20 K). A pump reporting -10 is valid.
+- **`set46` accepts -20 °C on K series.** The unit reports -20 °C even though older HeishaMon documentation says the lower bound is -15 °C; the component range is -20 … 20.
 - **`set21` (heater delay) is not J-series only.** The protocol documentation marks TOP96-TOP98 as J/K/L; the K series exposes the same delay/delta fields. Older HeishaMon topic documentation that says "only J-series" for SET21-SET23 is outdated.
 - **Heater enable has two layers.** `set44` / `set45` (`top58` / `top59`) only allow or block the heater per mode. `top167 Backup Heater Enable` is the custom-menu master switch and is **read-only** over CN-CNT. To turn the backup heater off completely, use the controller's *Installer / custom menu → Back-up heater*.
 - **Disabled does not mean never.** The K/L indoor unit still energises the backup heater for defrost, anti-freeze and indoor heat-exchanger protection. Panasonic documents this explicitly ("Backup heater is automatically turned ON when it is disabled … protection control of the indoor unit heat exchanger"). Do not cut the heater supply to prevent it: low water temperature during deice can then raise a malfunction.
